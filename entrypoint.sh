@@ -1,21 +1,19 @@
 #!/bin/bash
 
-echo "--- Edward Lee, 正在為您初始化高效能 ComfyUI 環境 ---"
-
-# 定義路徑
-NETWORK_DIR="/network-storage"
+NETWORK_DIR="/workspace"
 INPUT_DIR="/app/input"
 OUTPUT_DIR="/app/output"
 
-# 建立網路磁碟上的資料夾（如果不存在）
+echo "--- Edward Lee 的 ComfyUI 環境初始化 ---"
+echo "--- 掛載點: $NETWORK_DIR ---"
+
+# 建立外部資料夾 (如果網路磁碟是空的)
 mkdir -p ${NETWORK_DIR}/input ${NETWORK_DIR}/output
 
-# 處理軟連結：確保 input/output 指向持久化磁碟
+# 建立軟連結：讓 /app/input 指向 /workspace/input
 rm -rf $INPUT_DIR $OUTPUT_DIR
 ln -s ${NETWORK_DIR}/input $INPUT_DIR
 ln -s ${NETWORK_DIR}/output $OUTPUT_DIR
 
-echo "--- 軟連結配置完成，正在啟動 ComfyUI ---"
-
-# ??? ComfyUI
+echo "--- 軟連結建立完成，啟動 ComfyUI ---"
 python3 main.py --listen 0.0.0.0 --port 8188
