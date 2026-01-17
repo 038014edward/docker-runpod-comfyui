@@ -17,5 +17,5 @@ ln -s ${NETWORK_DIR}/output $OUTPUT_DIR
 
 echo "--- 軟連結配置完成，正在啟動 ComfyUI ---"
 
-# 啟動 ComfyUI
+# ??? ComfyUI
 python3 main.py --listen 0.0.0.0 --port 8188
