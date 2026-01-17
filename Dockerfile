@@ -23,7 +23,7 @@ WORKDIR /app
 RUN git clone https://github.com/comfyanonymous/ComfyUI.git . \
     && pip3 install -r requirements.txt
 
-# 6. 安裝 Custom Nodes (整合 Edward 的清單)
+# 6. 安裝 Custom Nodes
 WORKDIR /app/custom_nodes
 
 # --- 基礎管理與工具 ---
