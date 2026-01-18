@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 # 3. 安裝系統依賴 (加入 ffmpeg 用於影片處理)
 RUN apt-get update && apt-get install -y \
-    python3.10 python3-pip git git-lfs wget curl \
+    python3.10 python3-pip git git-lfs wget curl aria2 \
     libgl1 libglib2.0-0 libgoogle-perftools-dev \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
@@ -63,7 +63,12 @@ RUN find . -maxdepth 2 -name "requirements.txt" -exec pip3 install -r {} \; || t
 # 8. 配置啟動環境
 WORKDIR /app
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY configs/ /opt/comfy-configs/
+COPY scripts/ /opt/comfy-scripts/
+RUN chmod +x /entrypoint.sh /opt/comfy-scripts/download_models.sh \
+    && ln -sf /opt/comfy-scripts/download_models.sh /usr/local/bin/download-models
 
-EXPOSE 8188
+!!!!requirements
+
+    EXPOSE 8188
 ENTRYPOINT ["/entrypoint.sh"]

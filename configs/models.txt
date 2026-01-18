@@ -1,0 +1,33 @@
+# 格式：URL|subdir|filename
+# subdir 相對於 /models
+# 常見子目錄：checkpoints、vae、loras、controlnet
+# filename 為選填；預設為 URL 的檔名。
+# 範例項目（預設已註解）：
+# https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors|vae|sdxl_vae.safetensors
+# https://huggingface.co/stabilityai/sdxl-1.0-base/resolve/main/sd_xl_base_1.0.safetensors|checkpoints|sd_xl_base_1.0.safetensors
+
+# novel_work.json 工作流需要的模型
+https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors|text_encoders|qwen_3_4b.safetensors
+https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors|diffusion_models|z_image_turbo_bf16.safetensors
+https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors|vae|ae.safetensors
+https://huggingface.co/h94/IP-Adapter/resolve/main/sdxl_models/ip-adapter-plus_sdxl_vit-h.safetensors|ipadapter|ip-adapter-plus_sdxl_vit-h.safetensors
+https://huggingface.co/h94/IP-Adapter/resolve/main/models/image_encoder/model.safetensors|clip_vision|CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors
+# Z-Image-Turbo controlnet union 2.1 (HF file is named with full title, not diffusion_pytorch_model)
+https://huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/main/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors|model_patches|z_image_turbo_controlnet_union_2.1.safetensors
+
+# LoRA 模型
+https://civitai.com/api/download/models/2510875|loras|Z-Breast-Slider.safetensors
+https://huggingface.co/Wavefunc/tunaisa_004/resolve/main/tunaisa_004.safetensors|loras|tunaisa_004.safetensors
+https://huggingface.co/Wavefunc/tunaisa_004/resolve/main/tunaisa_004_000001600.safetensors|loras|tunaisa_004_000001600.safetensors
+
+# 產生角色一致性多圖 (MICKMUMPITZ) 所需模型
+https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/flux1-dev-fp8.safetensors|checkpoints/flux|flux1-dev-fp8.safetensors
+# https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/blob/main/qwen-image-edit-2511-Q2_K.gguf|unet/gguf|wen-image-edit-2511-Q2_K.gguf
+https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/blob/main/qwen-image-edit-2511-Q5_1.gguf|unet/gguf|qwen-image-edit-2511-Q5_1.gguf
+https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/blob/main/qwen-image-edit-2511-Q6_K.gguf|unet/gguf|qwen-image-edit-2511-Q6_K.gguf
+https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning/resolve/main/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors|loras/qwen|Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors
+https://huggingface.co/Kim2091/UltraSharp/resolve/main/4x-UltraSharp.pth|upscale_models|4x-UltraSharp.pth
+https://huggingface.co/Bingsu/adetailer/resolve/main/face_yolov8m.pt|ultralytics/bbox|face_yolov8m.pt
+https://huggingface.co/Comfy-Org/USO_1.0_Repackaged/resolve/main/split_files/model_patches/uso-flux1-projector-v1.safetensors|model_patches|uso-flux1-projector-v1.safetensors
+https://huggingface.co/Comfy-Org/sigclip_vision_384/resolve/main/sigclip_vision_patch14_384.safetensors|clip_vision|sigclip_vision_patch14_384.safetensors
+https://huggingface.co/Comfy-Org/USO_1.0_Repackaged/resolve/main/split_files/loras/uso-flux1-dit-lora-v1.safetensors|loras|uso-flux1-dit-lora-v1.safetensors
