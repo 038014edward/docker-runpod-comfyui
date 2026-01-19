@@ -1,18 +1,24 @@
 #!/bin/bash
 set -euo pipefail
 
-# Download all models listed in configs/models.txt using aria2c.
-# Environment variables:
-#   MODELS_DIR: where to store models (default: /workspace/models)
-#   COMFY_MODELS_DIR: ComfyUI models path to optionally link (default: /app/models)
-#   MODEL_JOBS: max concurrent downloads (default: 4)
-#   CIVITAI_TOKEN / HUGGING_FACE_TOKEN: optional auth tokens
+# 使用 aria2c 下載 configs/models.txt 裡列出的所有模型到 /app/models。
+# 可設定的環境變數：
+#   MODELS_DIR: 模型儲存位置（預設：/app/models）
+#   MODEL_JOBS: 最大並行下載數（預設：4）
+#   CIVITAI_TOKEN / HUGGING_FACE_TOKEN: 可選的授權 Token
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 解析真實腳本路徑以避免 symlink 導致路徑錯誤
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CONFIG_FILE="${CONFIG_FILE:-$REPO_ROOT/configs/models.txt}"
-MODELS_DIR="${MODELS_DIR:-/workspace/models}"
-COMFY_MODELS_DIR="${COMFY_MODELS_DIR:-/app/models}"
+# 預設使用鏡像內的配置檔 (/opt/comfy-configs)，可用環境變數覆寫
+CONFIG_FILE="${CONFIG_FILE:-/opt/comfy-configs/models.txt}"
+MODELS_DIR="${MODELS_DIR:-/app/models}"
 MODEL_JOBS="${MODEL_JOBS:-4}"
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"
 HUGGING_FACE_TOKEN="${HUGGING_FACE_TOKEN:-}"
@@ -29,19 +35,6 @@ ensure_aria2() {
         echo "aria2c not found. Install it first (e.g. apt-get update && apt-get install -y aria2)." >&2
         exit 1
     fi
-}
-
-link_models_dir() {
-    # If ComfyUI models dir does not exist, symlink it to the persistent directory.
-    [ "$MODELS_DIR" = "$COMFY_MODELS_DIR" ] && return
-    if [ -L "$COMFY_MODELS_DIR" ]; then
-        return
-    fi
-    if [ -e "$COMFY_MODELS_DIR" ]; then
-        echo "ComfyUI models path $COMFY_MODELS_DIR exists; not replacing." >&2
-        return
-    fi
-    ln -s "$MODELS_DIR" "$COMFY_MODELS_DIR"
 }
 
 download_model() {
@@ -106,7 +99,6 @@ process_models_list() {
 main() {
     ensure_aria2
     mkdir -p "$MODELS_DIR"
-    link_models_dir
     process_models_list
 }
 

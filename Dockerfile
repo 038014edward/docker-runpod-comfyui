@@ -65,10 +65,9 @@ WORKDIR /app
 COPY entrypoint.sh /entrypoint.sh
 COPY configs/ /opt/comfy-configs/
 COPY scripts/ /opt/comfy-scripts/
-RUN chmod +x /entrypoint.sh /opt/comfy-scripts/download_models.sh \
+RUN sed -i 's/\r$//' /entrypoint.sh /opt/comfy-scripts/download_models.sh \
+    && chmod +x /entrypoint.sh /opt/comfy-scripts/download_models.sh \
     && ln -sf /opt/comfy-scripts/download_models.sh /usr/local/bin/download-models
 
-!!!!requirements
-
-    EXPOSE 8188
+EXPOSE 8188
 ENTRYPOINT ["/entrypoint.sh"]

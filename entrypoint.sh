@@ -35,5 +35,8 @@ fi
 
 echo "--- 軟連結與語系設定完成，啟動 ComfyUI ---"
 
-# 5. 啟動 ComfyUI
+# 5. 下載模型到容器內部 /app/models（不使用 /workspace 持久化磁碟）
+download-models || echo "[warn] model download skipped" >&2
+
+# 6. 啟動 ComfyUI
 python3 main.py --listen 0.0.0.0 --port 8188
