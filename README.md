@@ -1,13 +1,13 @@
 # docker-runpod-comfyui
 
-基於 CUDA 12.4 的 ComfyUI 容器環境，內建常用自訂節點並在啟動時自動下載 `configs/models.txt` 列出的模型至 `/app/models`。
+基於 CUDA 12.4 的 ComfyUI 容器環境，內建常用自訂節點並在啟動時自動下載 `models.txt`（預設讀取 `/workspace/model-list/models.txt`，若無則退回內建 `configs/models.txt`）列出的模型至 `/app/models`。
 
 ## 內容概覽
 
 - 基底：`nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04`
 - 主程式：ComfyUI（/app）
 - 自訂節點：Manager、Custom-Scripts、rgthree、civitai 節點、essentials、Easy-Use、IPAdapter+、ControlNet Aux、KJNodes、Impact Pack/Subpack、AdvancedLivePortrait、Florence2、VideoHelperSuite、GGUF 支援等
-- 模型：啟動時執行 `/usr/local/bin/download-models`，使用 `configs/models.txt` 清單，下載到 `/app/models`
+- 模型：啟動時執行 `/usr/local/bin/download-models`，預設使用 `/workspace/model-list/models.txt`（若不存在則使用內建 `configs/models.txt`），下載到 `/app/models`
 - 服務埠：8188（已 EXPOSE）
 
 ## 建置映像
@@ -49,7 +49,7 @@ docker run --gpus all \
 
 ## 模型下載設定
 
-- 清單：`configs/models.txt`，格式 `URL|subdir|filename`
+- 清單：優先讀取 `/workspace/model-list/models.txt`，找不到時退回 `configs/models.txt`；格式 `URL|subdir|filename`
 - 下載目錄：`MODELS_DIR`（預設 `/app/models`）
 - 並行數：`MODEL_JOBS`（預設 `4`）
 - Token：`CIVITAI_TOKEN`、`HUGGING_FACE_TOKEN`（可選）

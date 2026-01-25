@@ -35,8 +35,17 @@ fi
 
 echo "--- 軟連結與語系設定完成，啟動 ComfyUI ---"
 
-# 5. 下載模型到容器內部 /app/models（不使用 /workspace 持久化磁碟）
-download-models || echo "[warn] model download skipped" >&2
+# 5. 下載模型到容器內部 /app/models（不使用 /workspace 持久化磁碟），加入重試避免啟動早期 DNS 未就緒
+DOWNLOAD_OK=0
+for i in {1..5}; do
+    if download-models; then
+        DOWNLOAD_OK=1
+        break
+    fi
+    echo "[warn] download-models failed on try $i, retrying in 20s" >&2
+    sleep 20
+done
+[ "$DOWNLOAD_OK" -eq 0 ] && echo "[warn] model download skipped after retries" >&2
 
 # 6. 啟動 ComfyUI
 python3 main.py --listen 0.0.0.0 --port 8188

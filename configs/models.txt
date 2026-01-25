@@ -22,9 +22,9 @@ https://huggingface.co/Wavefunc/tunaisa_004/resolve/main/tunaisa_004_000001600.s
 
 # 產生角色一致性多圖 (MICKMUMPITZ) 所需模型
 https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/flux1-dev-fp8.safetensors|checkpoints/flux|flux1-dev-fp8.safetensors
-# https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/blob/main/qwen-image-edit-2511-Q2_K.gguf|unet/gguf|wen-image-edit-2511-Q2_K.gguf
-https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/blob/main/qwen-image-edit-2511-Q5_1.gguf|unet/gguf|qwen-image-edit-2511-Q5_1.gguf
-https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/blob/main/qwen-image-edit-2511-Q6_K.gguf|unet/gguf|qwen-image-edit-2511-Q6_K.gguf
+# https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/resolve/main/qwen-image-edit-2511-Q2_K.gguf|unet/gguf|qwen-image-edit-2511-Q2_K.gguf
+https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/resolve/main/qwen-image-edit-2511-Q5_1.gguf|unet/gguf|qwen-image-edit-2511-Q5_1.gguf
+https://huggingface.co/unsloth/Qwen-Image-Edit-2511-GGUF/resolve/main/qwen-image-edit-2511-Q6_K.gguf|unet/gguf|qwen-image-edit-2511-Q6_K.gguf
 https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning/resolve/main/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors|loras/qwen|Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors
 https://huggingface.co/Kim2091/UltraSharp/resolve/main/4x-UltraSharp.pth|upscale_models|4x-UltraSharp.pth
 https://huggingface.co/Bingsu/adetailer/resolve/main/face_yolov8m.pt|ultralytics/bbox|face_yolov8m.pt

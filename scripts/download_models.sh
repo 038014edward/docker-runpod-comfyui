@@ -16,8 +16,20 @@ while [ -h "$SOURCE" ]; do
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-# 預設使用鏡像內的配置檔 (/opt/comfy-configs)，可用環境變數覆寫
-CONFIG_FILE="${CONFIG_FILE:-/opt/comfy-configs/models.txt}"
+# 追蹤是否有任何下載失敗，供外層重試判斷
+FAIL=0
+# 預設使用 volume 下的 /workspace/model-list/models.txt；若不存在則退回鏡像內的配置檔 (/opt/comfy-configs)
+CONFIG_FILE="${CONFIG_FILE:-}"
+if [ -z "$CONFIG_FILE" ]; then
+    for candidate in /workspace/model-list/models.txt /opt/comfy-configs/models.txt; do
+        if [ -f "$candidate" ]; then
+            CONFIG_FILE="$candidate"
+            break
+        fi
+    done
+    # 若兩者皆不存在，仍將預設指向 volume 路徑，方便之後掛載時生效
+    CONFIG_FILE="${CONFIG_FILE:-/workspace/model-list/models.txt}"
+fi
 MODELS_DIR="${MODELS_DIR:-/app/models}"
 MODEL_JOBS="${MODEL_JOBS:-4}"
 CIVITAI_TOKEN="${CIVITAI_TOKEN:-}"
@@ -64,7 +76,10 @@ download_model() {
     fi
 
     echo "[get] $filename -> $target_dir"
-    timeout 3600 aria2c --console-log-level=warn -c -x16 -s16 -k1M "${headers[@]}" "$final_url" -d "$target_dir" -o "$filename"
+    if ! timeout 3600 aria2c --console-log-level=warn -c -x16 -s16 -k1M "${headers[@]}" "$final_url" -d "$target_dir" -o "$filename"; then
+        FAIL=1
+        return 1
+    fi
 }
 
 process_models_list() {
@@ -87,19 +102,27 @@ process_models_list() {
         download_model "$url" "$subdir" "$filename" &
         active=$((active + 1))
         if [ "$active" -ge "$MODEL_JOBS" ]; then
-            wait -n || true
+            if ! wait -n; then FAIL=1; fi
             active=$((active - 1))
         fi
     done < "$CONFIG_FILE"
 
     echo "Waiting for remaining $active job(s)..."
-    wait || echo "warning: some downloads did not complete" >&2
+    while [ "$active" -gt 0 ]; do
+        if ! wait; then FAIL=1; fi
+        active=$((active - 1))
+    done
 }
 
 main() {
     ensure_aria2
     mkdir -p "$MODELS_DIR"
     process_models_list
+    # 若任何任務失敗，回傳非零讓入口腳本可以重試
+    if [ "$FAIL" -ne 0 ]; then
+        echo "[warn] some downloads failed" >&2
+        return 1
+    fi
 }
 
 main "$@"
