@@ -7,11 +7,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PIP_NO_CACHE_DIR=1 \
     PATH="/usr/local/cuda/bin:${PATH}"
 
-# 3. 安裝系統依賴 (加入 ffmpeg 用於影片處理)
+# 3. 安裝系統依賴 (加入 ffmpeg 用於影片處理和 rclone 用於 R2 同步)
 RUN apt-get update && apt-get install -y \
     python3.10 python3-pip git git-lfs wget curl aria2 \
     libgl1 libglib2.0-0 libgoogle-perftools-dev \
-    ffmpeg \
+    ffmpeg rclone \
     && rm -rf /var/lib/apt/lists/*
 
 # 4. 升級 pip 並安裝 Pytorch (對應 CUDA 12.4)
@@ -65,9 +65,10 @@ WORKDIR /app
 COPY entrypoint.sh /entrypoint.sh
 COPY configs/ /opt/comfy-configs/
 COPY scripts/ /opt/comfy-scripts/
-RUN sed -i 's/\r$//' /entrypoint.sh /opt/comfy-scripts/download_models.sh \
-    && chmod +x /entrypoint.sh /opt/comfy-scripts/download_models.sh \
-    && ln -sf /opt/comfy-scripts/download_models.sh /usr/local/bin/download-models
+RUN sed -i 's/\r$//' /entrypoint.sh /opt/comfy-scripts/download_models.sh /opt/comfy-scripts/r2-sync.sh \
+    && chmod +x /entrypoint.sh /opt/comfy-scripts/download_models.sh /opt/comfy-scripts/r2-sync.sh \
+    && ln -sf /opt/comfy-scripts/download_models.sh /usr/local/bin/download-models \
+    && ln -sf /opt/comfy-scripts/r2-sync.sh /usr/local/bin/r2-sync
 
 EXPOSE 8188
 ENTRYPOINT ["/entrypoint.sh"]

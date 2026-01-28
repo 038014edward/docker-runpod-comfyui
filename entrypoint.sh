@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # --- 環境變數設定 ---
 NETWORK_DIR="/workspace"
@@ -8,22 +9,30 @@ WORKFLOW_DIR="/app/user/default/workflows"
 MANAGER_CONFIG="/app/user/__manager/config.ini"
 
 echo "--- Edward Lee 的 ComfyUI 環境初始化 ---"
-echo "--- 掛載點: ${NETWORK_DIR} ---"
+echo "--- 工作目錄: ${NETWORK_DIR} ---"
 
-# 1. 建立外部持久化資料夾 (如果網路磁碟是空的)
+# 1. 從 R2 下載資料到 /workspace（如果憑證存在）
+echo "[info] 嘗試從 R2 同步資料..."
+if r2-sync download 2>&1; then
+    echo "[info] R2 資料同步完成"
+else
+    echo "[warn] R2 同步失敗或憑證未設定，使用本地 /workspace" >&2
+fi
+
+# 2. 建立必要的資料夾結構
 mkdir -p "${NETWORK_DIR}/input" "${NETWORK_DIR}/output" "${NETWORK_DIR}/workflows"
 
-# 2. 建立軟連結 (input/output)
+# 3. 建立軟連結 (input/output)
 rm -rf "${INPUT_DIR}" "${OUTPUT_DIR}"
 ln -s "${NETWORK_DIR}/input" "${INPUT_DIR}"
 ln -s "${NETWORK_DIR}/output" "${OUTPUT_DIR}"
 
-# 3. 建立 Workflow 軟連結 (確保工作流不消失)
+# 4. 建立 Workflow 軟連結 (確保工作流不消失)
 mkdir -p "/app/user/default"
 rm -rf "${WORKFLOW_DIR}"
 ln -s "${NETWORK_DIR}/workflows" "${WORKFLOW_DIR}"
 
-# 4. 強制鎖定介面語係為英文 (English)
+# 5. 強制鎖定介面語係為英文 (English)
 mkdir -p "/app/user/__manager"
 if [ ! -f "$MANAGER_CONFIG" ]; then
     echo "[config]" > "$MANAGER_CONFIG"
@@ -33,9 +42,15 @@ else
     sed -i 's/language = .*/language = en-US/' "$MANAGER_CONFIG"
 fi
 
-echo "--- 軟連結與語系設定完成，啟動 ComfyUI ---"
+echo "--- 軟連結與語系設定完成 ---"
 
-# 5. 下載模型到容器內部 /app/models（不使用 /workspace 持久化磁碟），加入重試避免啟動早期 DNS 未就緒
+# 6. 下載模型到容器內部 /app/models（優先使用 R2 同步的 model 清單），加入重試避免啟動早期 DNS 未就緒
+echo "[info] 開始下載模型..."
+if [ -f "/workspace/model-list/models.txt" ]; then
+    echo "[info] 使用 R2 同步的模型清單: /workspace/model-list/models.txt"
+else
+    echo "[info] 使用內建模型清單: /opt/comfy-configs/models.txt"
+fi
 DOWNLOAD_OK=0
 for i in {1..5}; do
     if download-models; then
@@ -47,5 +62,6 @@ for i in {1..5}; do
 done
 [ "$DOWNLOAD_OK" -eq 0 ] && echo "[warn] model download skipped after retries" >&2
 
-# 6. 啟動 ComfyUI
+# 7. 啟動 ComfyUI
+echo "--- 啟動 ComfyUI ---"
 python3 main.py --listen 0.0.0.0 --port 8188

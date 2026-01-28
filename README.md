@@ -47,6 +47,35 @@ docker run --gpus all \
 2) 下載模型到 `/app/models`（失敗會警告但不阻斷）
 3) 啟動 ComfyUI：`python3 main.py --listen 0.0.0.0 --port 8188`
 
+### 掛載 Cloudflare R2（comfyui-volume/workspace）
+
+由於 RunPod 不支援 FUSE，改用 **手動同步** 方式：
+
+**環境變數設定**（在 RunPod Template）：
+
+- `CLOUDFLARE_KEY_ID={{ RUNPOD_SECRET_CLOUDFLARE_KEY_ID }}`
+- `CLOUDFLARE_TOKEN={{ RUNPOD_SECRET_CLOUDFLARE_TOKEN }}`
+- （可選）`S3FS_ENDPOINT=https://f0ab5339fbc3a504a9228b91458c40d2.r2.cloudflarestorage.com`
+- （可選）`S3FS_PREFIX=workspace`
+
+**手動同步指令**（在容器內執行）：
+
+```bash
+# 從 R2 下載最新資料到 /workspace
+r2-sync download   # 或 r2-sync down / r2-sync pull
+
+# 上傳 /workspace 到 R2
+r2-sync upload     # 或 r2-sync up / r2-sync push
+```
+
+**建議工作流程**：
+
+1. Pod 啟動後：`r2-sync download` 載入之前的工作
+2. 工作完成後：`r2-sync upload` 保存到 R2
+3. 重要節點隨時執行 `r2-sync upload` 備份
+
+- 掛載失敗時會回退為本地 `/workspace`，並顯示警告。
+
 ## 模型下載設定
 
 - 清單：優先讀取 `/workspace/model-list/models.txt`，找不到時退回 `configs/models.txt`；格式 `URL|subdir|filename`
