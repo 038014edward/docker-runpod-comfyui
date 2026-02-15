@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# 在 entrypoint.sh 開始前強制終止所有殘留的 rclone 進程
+pkill -9 rclone || true
+sleep 1
+
 # --- 環境變數設定 ---
 NETWORK_DIR="/workspace"
 INPUT_DIR="/app/input"
@@ -13,10 +17,14 @@ echo "--- 工作目錄: ${NETWORK_DIR} ---"
 
 # 1. 從 R2 下載資料到 /workspace（如果憑證存在）
 echo "[info] 嘗試從 R2 同步資料..."
-if r2-sync download 2>&1; then
-    echo "[info] R2 資料同步完成"
+if [ -z "$CLOUDFLARE_KEY_ID" ] || [ -z "$CLOUDFLARE_TOKEN" ]; then
+    echo "[warn] R2 credentials not found (CLOUDFLARE_KEY_ID or CLOUDFLARE_TOKEN not set)" >&2
+elif ! r2-sync download 2>&1; then
+    EXIT_CODE=$?
+    echo "[error] R2 同步失敗 (exit code: $EXIT_CODE)" >&2
+    echo "[warn] 使用本地 /workspace" >&2
 else
-    echo "[warn] R2 同步失敗或憑證未設定，使用本地 /workspace" >&2
+    echo "[info] R2 資料同步完成"
 fi
 
 # 2. 建立必要的資料夾結構

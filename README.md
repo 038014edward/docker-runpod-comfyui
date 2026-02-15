@@ -31,6 +31,34 @@ docker push wavefunc/comfyui-wan2.1:latest
 docker push wavefunc/comfyui-wan2.1:v1.0
 ```
 
+### 使用 buildx 進行多平臺構建與推送
+
+使用 Docker Buildx 可以進行一鍵構建與推送，支持多個平臺架構（例如 linux/amd64）：
+
+**初始化步驟**（首次使用前執行一次）：
+
+```bash
+docker buildx create --use
+```
+
+**構建並推送到 Docker Hub**：
+
+```bash
+docker buildx build --platform linux/amd64 -t wavefunc/comfyui-wan2.1:latest --push .
+```
+
+**支持多個平臺**（如需同時構建 AMD64 與 ARM64）：
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 -t wavefunc/comfyui-wan2.1:latest --push .
+```
+
+**不推送直接載入本地**（預覽用，僅限單一平臺）：
+
+```bash
+docker buildx build --platform linux/amd64 -t wavefunc/comfyui-wan2.1:latest --load .
+```
+
 ## 執行容器（RunPod 或一般 Docker）
 
 ```bash
