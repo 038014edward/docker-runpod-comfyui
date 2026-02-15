@@ -112,6 +112,49 @@ r2-sync upload     # 或 r2-sync up / r2-sync push
 - Token：`CIVITAI_TOKEN`、`HUGGING_FACE_TOKEN`（可選）
 - 手動觸發：容器內執行 `download-models`
 
+### 手動下載單個模型
+
+若需要快速下載單個模型，可在容器內使用 `aria2c` 進行高速下載：
+
+**基本語法**：
+
+```bash
+aria2c --console-log-level=warn -c -x16 -s16 -k1M \
+  "模型下載連結" \
+  -d /app/models/存放子目錄 \
+  -o 本地檔名
+```
+
+**參數說明**：
+
+| 參數 | 說明 |
+|------|------|
+| `--console-log-level=warn` | 只顯示警告及錯誤訊息 |
+| `-c` | 啟用續傳功能（斷點續傳） |
+| `-x16` | 單檔連線數上限（16）提高下載速度 |
+| `-s16` | 分割檔案16段下載 |
+| `-k1M` | 最小分割大小（1MB） |
+| `-d` | 下載目錄 |
+| `-o` | 指定本地存檔名 |
+
+**實例 - 下載 FLUX LoRA 模型到 civitai**：
+
+```bash
+aria2c --console-log-level=warn -c -x16 -s16 -k1M \
+  "https://civitai.com/api/download/models/1125640?token=$CIVITAI_TOKEN" \
+  -d /app/models/loras \
+  -o FLUX_Polyhedron_nipplepower_NW32_Kohya_ss-000001.safetensors
+```
+
+**實例 - 下載檢查點模型到 checkpoints**：
+
+```bash
+aria2c --console-log-level=warn -c -x16 -s16 -k1M \
+  "https://example.com/model.safetensors" \
+  -d /app/models/checkpoints \
+  -o model_name.safetensors
+```
+
 ## 常用 Volume 路徑
 
 - `/workspace/input` → `/app/input`
